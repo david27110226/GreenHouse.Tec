@@ -1,0 +1,56 @@
+#include <DHT.h>
+#include <LiquidCrystal.h>
+
+#define DHTPIN 4 // Pin donde está conectado el sensor DHT11
+#define DHTTYPE DHT11
+#define SOIL_MOISTURE_PIN 36 // Pin donde está conectado el sensor de humedad de suelo
+#define RELAY_PIN_VENTILADOR 26 // Pin del relé para el ventilador
+#define RELAY_PIN_BOMBA_AGUA 27 // Pin del relé para la bomba de agua
+#define LDR_PIN 39 // Pin del LDR para la detección de luz
+
+DHT dht(DHTPIN, DHTTYPE);
+LiquidCrystal lcd(0); // Inicializa el LCD en la dirección 0
+
+void setup() {
+  dht.begin();
+  lcd.begin(16, 2); // Inicializa el LCD con 16 columnas y 2 filas
+  pinMode(RELAY_PIN_VENTILADOR, OUTPUT);
+  pinMode(RELAY_PIN_BOMBA_AGUA, OUTPUT);
+}
+
+void loop() {
+  float temperatura = dht.readTemperature(); // Lee la temperatura
+  float humedad = dht.readHumidity(); // Lee la humedad
+  int humedadSuelo = analogRead(SOIL_MOISTURE_PIN); // Lee la humedad del suelo
+  int luz = analogRead(LDR_PIN); // Lee la luz ambiente
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Temp: ");
+  lcd.print(temperatura);
+  lcd.print("C  Hum: ");
+  lcd.print(humedad);
+  lcd.setCursor(0, 1);
+  lcd.print("Suelo: ");
+  lcd.print(humedadSuelo);
+  lcd.print("  Luz: ");
+  lcd.print(luz);
+
+  // Control de temperatura
+  if (temperatura < 18) {
+    digitalWrite(RELAY_PIN_VENTILADOR, HIGH); // Enciende el ventilador
+  } else if (temperatura > 24) {
+    digitalWrite(RELAY_PIN_VENTILADOR, LOW); // Apaga el ventilador
+  }
+
+  // Control de humedad del suelo
+  if (humedadSuelo > 70) {
+    digitalWrite(RELAY_PIN_VENTILADOR, HIGH); // Enciende el ventilador
+  } else if (humedadSuelo < 50) {
+    digitalWrite(RELAY_PIN_BOMBA_AGUA, HIGH); // Enciende la bomba de agua
+  } else {
+    digitalWrite(RELAY_PIN_BOMBA_AGUA, LOW); // Apaga la bomba de agua
+  }
+
+  delay(2000); // Espera 2 segundos antes de la siguiente lectura
+}
