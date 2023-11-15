@@ -12,7 +12,7 @@ and Contraseña='$Contraseña'");
 
 if(mysqli_num_rows($validar_login) > 0){
     $_SESSION['usuario'] = $Correo_Electronico;
-    header("location: ../bienvenido.php");
+    header("location: ../Pagina_principal.php");
     exit;
 }else{
     echo '
